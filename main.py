@@ -22,7 +22,7 @@ dp = Dispatcher(bot, storage=MemoryStorage())
 @dp.message_handler(commands=['start'])
 async def send_welcome(message: types.Message):
     markup = ReplyKeyboardMarkup(resize_keyboard=True)
-    markup.add(KeyboardButton('Спарсить заказы'))
+    markup.add(KeyboardButton('Спарсить заказы с "Freelance Habr"'))
 
     await message.answer(
         md.text(
@@ -33,7 +33,7 @@ async def send_welcome(message: types.Message):
     )
 
 
-@dp.message_handler(filters.Text(equals='Спарсить заказы'))
+@dp.message_handler(filters.Text(equals='Спарсить заказы с "Freelance Habr"'))
 async def process_parse_request(message: types.Message):
     await message.reply('Сколько заказов вы хотите спарсить?')
     await Form.count.set()
