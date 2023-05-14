@@ -41,6 +41,7 @@ async def process_parse_request(message: types.Message):
 
 @dp.message_handler(state=Form.count)
 async def process_parse_count(message: types.Message, state: FSMContext):
+    print(message.text)
     try:
         count = int(message.text)
         if count <= 0:
@@ -60,6 +61,11 @@ async def process_parse_count(message: types.Message, state: FSMContext):
 
     await message.reply(f'Найдено {len(tasks)} заказов!')
     await state.finish()
+
+
+@dp.message_handler()
+async def process_parse_request(message: types.Message):
+    print(message.text)
 
 
 if __name__ == '__main__':
