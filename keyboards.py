@@ -2,6 +2,7 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder, ReplyKeyboardBuilder
 from aiogram.types import InlineKeyboardButton
 from aiogram.types import KeyboardButton, ReplyKeyboardMarkup
 
+from categories import *
 from database import get_user_settings
 
 
@@ -35,6 +36,21 @@ async def auto_parse_menu_keyboard(user_id):
     return markup.as_markup()
 
 
+async def categories_keyboard(user_id, service):
+    markup = InlineKeyboardBuilder()
+    user_settings = await get_user_settings(user_id)
+    user_categories = tuple(map(int, user_settings[f'{service}_categories'].split(',')))
+    categories = habr_categories if service == 'habr' else freelance_categories
+    for cat_id in categories:
+        markup.add(InlineKeyboardButton(
+            text=f'{"✅" if cat_id in user_categories else "❌"}{categories[cat_id]["ru"]}', 
+            callback_data=f'{categories[cat_id]["name"]}_state'
+        ))
+    markup.adjust(2)
+
+    return markup.as_markup()
+
+
 single_parse_keyboard = InlineKeyboardBuilder()
 single_parse_keyboard.add(InlineKeyboardButton(text='Freelance Habr', callback_data='single_parse_habr'))
 single_parse_keyboard.add(InlineKeyboardButton(text='Freelance.ru', callback_data='single_parse_freelance'))
@@ -44,10 +60,13 @@ main_menu_keyboard = ReplyKeyboardBuilder()
 main_menu_keyboard.add(KeyboardButton(text='Автоматический парсинг'))
 main_menu_keyboard.add(KeyboardButton(text='Одиночный парсинг'))
 main_menu_keyboard.add(KeyboardButton(text='Настройки'))
+main_menu_keyboard.add(KeyboardButton(text='Обратная связь'))
+main_menu_keyboard.adjust(2)
 
-educate_ask_keyboard = InlineKeyboardBuilder()
-educate_ask_keyboard.add(InlineKeyboardButton(text='Да', callback_data='educate_accept'))
-educate_ask_keyboard.add(InlineKeyboardButton(text='Нет', callback_data='educate_denied'))
+settings_keyboard = InlineKeyboardBuilder()
+settings_keyboard.add(InlineKeyboardButton(text='Freelance Habr', callback_data='habr_settings'))
+settings_keyboard.add(InlineKeyboardButton(text='Freelance.ru', callback_data='freelance_settings'))
+settings_keyboard.add(InlineKeyboardButton(text='Kwork', callback_data='kwork_settings'))
 
 
 

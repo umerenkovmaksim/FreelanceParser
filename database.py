@@ -1,5 +1,7 @@
 import aiosqlite
 from config import database
+from utils import dict_factory
+
 
 async def init_db():
     async with aiosqlite.connect(database) as db:
@@ -8,7 +10,10 @@ async def init_db():
                 user_id INTEGER PRIMARY KEY,
                 auto_habr BOOLEAN DEFAULT (FALSE),
                 auto_freelance BOOLEAN DEFAULT (FALSE),
-                auto_kwork BOOLEAN DEFAULT (FALSE)         
+                auto_kwork BOOLEAN DEFAULT (FALSE),
+                habr_categories TEXT DEFAULT [-1],
+                freelance_categories TEXT DEFAULT [-1],
+                kwork_categories TEXT DEFAULT [-1]
             )
         ''')
         await db.execute('''
@@ -42,16 +47,13 @@ async def get_user(user_id):
         
 async def get_user_settings(user_id):
     async with aiosqlite.connect(database) as db:
+        db.row_factory = dict_factory
         async with db.execute('''
             SELECT * FROM users WHERE user_id = ?
         ''', (user_id,)) as cursor:
             user_data = await cursor.fetchone()
-            if user_data:
-                return {
-                    'auto_habr': user_data[1],
-                    'auto_freelance': user_data[2],
-                    'auto_kwork': user_data[3],
-                }
+            if dict(user_data):
+                return dict(user_data)
             return None
             
             
@@ -79,16 +81,13 @@ async def get_active_automode_users():
 
 async def get_user_last_tasks(user_id):
     async with aiosqlite.connect(database) as db:
+        db.row_factory = dict_factory
         async with db.execute(
             '''SELECT * FROM last_tasks WHERE user_id = ?''',
         (user_id,)) as cursor:
             last_tasks = await cursor.fetchone()
-            if last_tasks:
-                return {
-                    'last_habr': last_tasks[1],
-                    'last_freelance': last_tasks[2],
-                    'last_kwork': last_tasks[3],
-                }
+            if dict(last_tasks):
+                return dict(last_tasks)
             return None
             
 
