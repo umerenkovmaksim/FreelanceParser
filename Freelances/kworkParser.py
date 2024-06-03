@@ -1,5 +1,6 @@
 import asyncio
 import time
+import re
 from math import ceil
 from pprint import pprint
 
@@ -23,7 +24,7 @@ def kwork_parser(categories='', tasks_count=1):
 
 
 def parse_kwork_freelance_page(categories, page):
-    url = furl("https://kwork.ru/projects?fc=41")
+    url = furl("https://kwork.ru/projects?c=11")
     url.args['page'] = page
 
     op = webdriver.ChromeOptions()
@@ -40,7 +41,7 @@ def parse_kwork_freelance_page(categories, page):
     result_tasks.extend(
         dict(
             title=task.select_one('.wants-card__header-title').a.text.replace('\n', '').strip(),
-            resp_count=int(task.select('.query-item__info span')[1].text.split(' ')[1]),
+            resp_count=int(re.sub(r'\t|\xa0|\n', '', tasks[0].select('.mr8')[1].text).split(':')[1]),
             url='https://kwork.ru'
                 + task.select_one('.wants-card__header-title').a.get('href'),
         )
