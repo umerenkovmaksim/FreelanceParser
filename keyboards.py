@@ -44,9 +44,9 @@ async def categories_keyboard(user_id, service):
     for cat_id in categories:
         markup.add(InlineKeyboardButton(
             text=f'{"✅" if cat_id in user_categories else "❌"}{categories[cat_id]["ru"]}', 
-            callback_data=f'{categories[cat_id]["name"]}_state'
+            callback_data=f'{cat_id}_{service}_state'
         ))
-    markup.adjust(2)
+    markup.adjust(1)
 
     return markup.as_markup()
 

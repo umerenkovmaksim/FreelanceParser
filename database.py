@@ -57,15 +57,11 @@ async def get_user_settings(user_id):
             return None
             
             
-async def set_user_settings(user_id, auto_habr=None, auto_freelance=None, auto_kwork=None):
-    user_settings = await get_user_settings(user_id)
+async def set_user_settings(user_id, *args, **kwargs):
     async with aiosqlite.connect(database) as db:
-        await db.execute('''
-            UPDATE users SET auto_habr = ?, auto_freelance = ?, auto_kwork = ? WHERE user_id = ?
+        await db.execute(f'''
+            UPDATE users SET {",".join(["%s = '%s'" % (elem, kwargs[elem]) for elem in kwargs])} WHERE user_id = ?
         ''', (
-            auto_habr if type(auto_habr) is bool else user_settings['auto_habr'], 
-            auto_freelance if type(auto_freelance) is bool else user_settings['auto_freelance'], 
-            auto_kwork if type(auto_kwork) is bool else user_settings['auto_kwork'], 
             user_id,
         ))
         await db.commit()

@@ -3,6 +3,8 @@ from aiogram.fsm.state import State, StatesGroup
 from aiogram.fsm.context import FSMContext
 from aiogram.enums import ParseMode
 
+from categories import *
+from database import *
 from keyboards import *
 from Freelances.habrParser import habr_parser
 from Freelances.freelanceParser import freelance_parser
@@ -57,8 +59,13 @@ async def process_habr_parse_count(message: types.Message, state: FSMContext):
     except ValueError:
         await message.reply('Количество заказов должно быть положительным числом!')
         return
-
-    tasks = await habr_parser(tasks_count=count)
+    
+    user_categories = await get_user_settings(message.from_user.id)
+    categories = ','.join([
+        habr_categories[int(elem)]['filter'] 
+        for elem in user_categories['habr_categories'].split(',')
+    ])
+    tasks = await habr_parser(tasks_count=count, categories=categories)
 
     for task in tasks:
         task_text = f'{task["title"]} ({task["url"]})\nОткликов: {task["resp_count"]}, Время: {task["time_ago"]}'
